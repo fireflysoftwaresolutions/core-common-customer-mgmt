@@ -43,7 +43,7 @@ public class PartyGroupMembershipServiceImpl implements PartyGroupMembershipServ
 
     @Override
     public Mono<PaginationResponse<PartyGroupMembershipDTO>> filterPartyGroupMemberships(UUID partyId, FilterRequest<PartyGroupMembershipDTO> filterRequest) {
-        PartyScope.scope(filterRequest, PartyGroupMembershipDTO::new, PartyGroupMembershipDTO::setPartyId, partyId);
+        PartyScopeImpl.scope(filterRequest, PartyGroupMembershipDTO::new, PartyGroupMembershipDTO::setPartyId, partyId);
         return FilterUtils
                 .createFilter(
                         PartyGroupMembership.class,
@@ -65,7 +65,7 @@ public class PartyGroupMembershipServiceImpl implements PartyGroupMembershipServ
     public Mono<PartyGroupMembershipDTO> updatePartyGroupMembership(UUID partyId, UUID partyGroupMembershipId, PartyGroupMembershipDTO partyGroupMembershipDTO) {
         return repository.findById(partyGroupMembershipId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Party group membership not found with ID: " + partyGroupMembershipId)))
-                .flatMap(existingPartyGroupMembership -> PartyScope.requireOwner(
+                .flatMap(existingPartyGroupMembership -> PartyScopeImpl.requireOwner(
                                 partyId, existingPartyGroupMembership.getPartyId(), existingPartyGroupMembership,
                                 "Party group membership", partyGroupMembershipId)
                         .flatMap(owned -> {
@@ -81,7 +81,7 @@ public class PartyGroupMembershipServiceImpl implements PartyGroupMembershipServ
     public Mono<Void> deletePartyGroupMembership(UUID partyId, UUID partyGroupMembershipId) {
         return repository.findById(partyGroupMembershipId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Party group membership not found with ID: " + partyGroupMembershipId)))
-                .flatMap(partyGroupMembership -> PartyScope.requireOwner(
+                .flatMap(partyGroupMembership -> PartyScopeImpl.requireOwner(
                                 partyId, partyGroupMembership.getPartyId(), partyGroupMembership,
                                 "Party group membership", partyGroupMembershipId)
                         .flatMap(owned -> repository.deleteById(partyGroupMembershipId)));
@@ -91,7 +91,7 @@ public class PartyGroupMembershipServiceImpl implements PartyGroupMembershipServ
     public Mono<PartyGroupMembershipDTO> getPartyGroupMembershipById(UUID partyId, UUID partyGroupMembershipId) {
         return repository.findById(partyGroupMembershipId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Party group membership not found with ID: " + partyGroupMembershipId)))
-                .flatMap(partyGroupMembership -> PartyScope.requireOwner(
+                .flatMap(partyGroupMembership -> PartyScopeImpl.requireOwner(
                         partyId, partyGroupMembership.getPartyId(), partyGroupMembership,
                         "Party group membership", partyGroupMembershipId))
                 .map(mapper::toDTO);

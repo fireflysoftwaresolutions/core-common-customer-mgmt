@@ -47,7 +47,7 @@ public class PartyStatusServiceImpl implements PartyStatusService {
 
     @Override
     public Mono<PaginationResponse<PartyStatusDTO>> filterPartyStatuses(UUID partyId, FilterRequest<PartyStatusDTO> filterRequest) {
-        PartyScope.scope(filterRequest, PartyStatusDTO::new, PartyStatusDTO::setPartyId, partyId);
+        PartyScopeImpl.scope(filterRequest, PartyStatusDTO::new, PartyStatusDTO::setPartyId, partyId);
         return FilterUtils
                 .createFilter(
                         PartyStatus.class,
@@ -108,7 +108,7 @@ public class PartyStatusServiceImpl implements PartyStatusService {
     public Mono<Void> deletePartyStatus(UUID partyId, UUID partyStatusId) {
         return repository.findById(partyStatusId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Party status not found with ID: " + partyStatusId)))
-                .flatMap(partyStatus -> PartyScope.requireOwner(partyId, partyStatus.getPartyId(), partyStatus, "Party status", partyStatusId)
+                .flatMap(partyStatus -> PartyScopeImpl.requireOwner(partyId, partyStatus.getPartyId(), partyStatus, "Party status", partyStatusId)
                         .flatMap(owned -> repository.deleteById(partyStatusId)));
     }
 
@@ -116,7 +116,7 @@ public class PartyStatusServiceImpl implements PartyStatusService {
     public Mono<PartyStatusDTO> getPartyStatusById(UUID partyId, UUID partyStatusId) {
         return repository.findById(partyStatusId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Party status not found with ID: " + partyStatusId)))
-                .flatMap(partyStatus -> PartyScope.requireOwner(partyId, partyStatus.getPartyId(), partyStatus, "Party status", partyStatusId))
+                .flatMap(partyStatus -> PartyScopeImpl.requireOwner(partyId, partyStatus.getPartyId(), partyStatus, "Party status", partyStatusId))
                 .map(mapper::toDTO);
     }
 }

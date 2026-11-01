@@ -37,11 +37,11 @@ import java.util.UUID;
  * Parent and legal-entity ownership edges form the hierarchy.
  * A natural person who owns a company is an owner, not a parent in that chain.
  */
-final class PartyHierarchy {
+final class PartyHierarchyImpl {
 
     static final int MAX_DEPTH = 25;
 
-    private PartyHierarchy() {
+    private PartyHierarchyImpl() {
     }
 
     static boolean isHierarchyEdge(RelationshipKind kind, PartyKind sourceKind) {

@@ -43,7 +43,7 @@ public class PoliticallyExposedPersonServiceImpl implements PoliticallyExposedPe
 
     @Override
     public Mono<PaginationResponse<PoliticallyExposedPersonDTO>> filterPoliticallyExposedPersons(UUID partyId, FilterRequest<PoliticallyExposedPersonDTO> filterRequest) {
-        PartyScope.scope(filterRequest, PoliticallyExposedPersonDTO::new, PoliticallyExposedPersonDTO::setPartyId, partyId);
+        PartyScopeImpl.scope(filterRequest, PoliticallyExposedPersonDTO::new, PoliticallyExposedPersonDTO::setPartyId, partyId);
         return FilterUtils
                 .createFilter(
                         PoliticallyExposedPerson.class,
@@ -65,7 +65,7 @@ public class PoliticallyExposedPersonServiceImpl implements PoliticallyExposedPe
     public Mono<PoliticallyExposedPersonDTO> updatePoliticallyExposedPerson(UUID partyId, UUID politicallyExposedPersonId, PoliticallyExposedPersonDTO politicallyExposedPersonDTO) {
         return repository.findById(politicallyExposedPersonId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Politically exposed person not found with ID: " + politicallyExposedPersonId)))
-                .flatMap(existingPoliticallyExposedPerson -> PartyScope.requireOwner(
+                .flatMap(existingPoliticallyExposedPerson -> PartyScopeImpl.requireOwner(
                                 partyId, existingPoliticallyExposedPerson.getPartyId(), existingPoliticallyExposedPerson,
                                 "Politically exposed person", politicallyExposedPersonId)
                         .flatMap(owned -> {
@@ -81,7 +81,7 @@ public class PoliticallyExposedPersonServiceImpl implements PoliticallyExposedPe
     public Mono<Void> deletePoliticallyExposedPerson(UUID partyId, UUID politicallyExposedPersonId) {
         return repository.findById(politicallyExposedPersonId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Politically exposed person not found with ID: " + politicallyExposedPersonId)))
-                .flatMap(politicallyExposedPerson -> PartyScope.requireOwner(
+                .flatMap(politicallyExposedPerson -> PartyScopeImpl.requireOwner(
                                 partyId, politicallyExposedPerson.getPartyId(), politicallyExposedPerson,
                                 "Politically exposed person", politicallyExposedPersonId)
                         .flatMap(owned -> repository.deleteById(politicallyExposedPersonId)));
@@ -91,7 +91,7 @@ public class PoliticallyExposedPersonServiceImpl implements PoliticallyExposedPe
     public Mono<PoliticallyExposedPersonDTO> getPoliticallyExposedPersonById(UUID partyId, UUID politicallyExposedPersonId) {
         return repository.findById(politicallyExposedPersonId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Politically exposed person not found with ID: " + politicallyExposedPersonId)))
-                .flatMap(politicallyExposedPerson -> PartyScope.requireOwner(
+                .flatMap(politicallyExposedPerson -> PartyScopeImpl.requireOwner(
                         partyId, politicallyExposedPerson.getPartyId(), politicallyExposedPerson,
                         "Politically exposed person", politicallyExposedPersonId))
                 .map(mapper::toDTO);

@@ -51,7 +51,7 @@ public class PartyAttributeServiceImpl implements PartyAttributeService {
 
     @Override
     public Mono<PaginationResponse<PartyAttributeDTO>> filter(UUID partyId, FilterRequest<PartyAttributeDTO> filterRequest) {
-        PartyScope.scope(filterRequest, PartyAttributeDTO::new, PartyAttributeDTO::setPartyId, partyId);
+        PartyScopeImpl.scope(filterRequest, PartyAttributeDTO::new, PartyAttributeDTO::setPartyId, partyId);
         return FilterUtils.createFilter(PartyAttribute.class, mapper::toDTO).filter(filterRequest);
     }
 
@@ -81,7 +81,7 @@ public class PartyAttributeServiceImpl implements PartyAttributeService {
         }
         return repository.findById(attributeId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Party attribute not found with ID: " + attributeId)))
-                .flatMap(existing -> PartyScope.requireOwner(partyId, existing.getPartyId(), existing, "Party attribute", attributeId)
+                .flatMap(existing -> PartyScopeImpl.requireOwner(partyId, existing.getPartyId(), existing, "Party attribute", attributeId)
                         .flatMap(owned -> {
                             if (dto.getEffectiveFrom() == null) {
                                 dto.setEffectiveFrom(owned.getEffectiveFrom());
@@ -98,7 +98,7 @@ public class PartyAttributeServiceImpl implements PartyAttributeService {
     public Mono<Void> delete(UUID partyId, UUID attributeId) {
         return repository.findById(attributeId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Party attribute not found with ID: " + attributeId)))
-                .flatMap(existing -> PartyScope.requireOwner(partyId, existing.getPartyId(), existing, "Party attribute", attributeId)
+                .flatMap(existing -> PartyScopeImpl.requireOwner(partyId, existing.getPartyId(), existing, "Party attribute", attributeId)
                         .flatMap(owned -> repository.deleteById(attributeId)));
     }
 
@@ -106,7 +106,7 @@ public class PartyAttributeServiceImpl implements PartyAttributeService {
     public Mono<PartyAttributeDTO> get(UUID partyId, UUID attributeId) {
         return repository.findById(attributeId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Party attribute not found with ID: " + attributeId)))
-                .flatMap(existing -> PartyScope.requireOwner(partyId, existing.getPartyId(), existing, "Party attribute", attributeId))
+                .flatMap(existing -> PartyScopeImpl.requireOwner(partyId, existing.getPartyId(), existing, "Party attribute", attributeId))
                 .map(mapper::toDTO);
     }
 

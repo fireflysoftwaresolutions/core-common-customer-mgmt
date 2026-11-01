@@ -44,11 +44,11 @@ public class LegalEntityServiceImpl implements LegalEntityService {
     private LegalEntityMapper mapper;
 
     @Autowired
-    private PartyProfiles partyProfiles;
+    private PartyProfilesImpl partyProfiles;
 
     @Override
     public Mono<PaginationResponse<LegalEntityDTO>> filterLegalEntities(UUID partyId, FilterRequest<LegalEntityDTO> filterRequest) {
-        PartyScope.scope(filterRequest, LegalEntityDTO::new, LegalEntityDTO::setPartyId, partyId);
+        PartyScopeImpl.scope(filterRequest, LegalEntityDTO::new, LegalEntityDTO::setPartyId, partyId);
         return FilterUtils
                 .createFilter(
                         LegalEntity.class,
@@ -86,7 +86,7 @@ public class LegalEntityServiceImpl implements LegalEntityService {
     public Mono<Void> deleteLegalEntity(UUID partyId, UUID legalEntityId) {
         return repository.findById(legalEntityId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Legal entity not found with ID: " + legalEntityId)))
-                .flatMap(legalEntity -> PartyScope.requireOwner(partyId, legalEntity.getPartyId(), legalEntity, "Legal entity", legalEntityId)
+                .flatMap(legalEntity -> PartyScopeImpl.requireOwner(partyId, legalEntity.getPartyId(), legalEntity, "Legal entity", legalEntityId)
                         .flatMap(owned -> repository.deleteById(legalEntityId)));
     }
 
@@ -94,7 +94,7 @@ public class LegalEntityServiceImpl implements LegalEntityService {
     public Mono<LegalEntityDTO> getLegalEntityById(UUID partyId, UUID legalEntityId) {
         return repository.findById(legalEntityId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Legal entity not found with ID: " + legalEntityId)))
-                .flatMap(legalEntity -> PartyScope.requireOwner(partyId, legalEntity.getPartyId(), legalEntity, "Legal entity", legalEntityId))
+                .flatMap(legalEntity -> PartyScopeImpl.requireOwner(partyId, legalEntity.getPartyId(), legalEntity, "Legal entity", legalEntityId))
                 .map(mapper::toDTO);
     }
 

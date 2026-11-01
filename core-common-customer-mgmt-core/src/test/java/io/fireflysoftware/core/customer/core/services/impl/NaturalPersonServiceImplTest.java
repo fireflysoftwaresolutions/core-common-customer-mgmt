@@ -52,7 +52,7 @@ class NaturalPersonServiceImplTest {
     private NaturalPersonMapper naturalPersonMapper;
 
     @Mock
-    private PartyProfiles partyProfiles;
+    private PartyProfilesImpl partyProfiles;
 
     @InjectMocks
     private NaturalPersonServiceImpl naturalPersonService;

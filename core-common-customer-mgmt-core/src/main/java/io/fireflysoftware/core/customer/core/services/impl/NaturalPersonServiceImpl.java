@@ -44,11 +44,11 @@ public class NaturalPersonServiceImpl implements NaturalPersonService {
     private NaturalPersonMapper mapper;
 
     @Autowired
-    private PartyProfiles partyProfiles;
+    private PartyProfilesImpl partyProfiles;
 
     @Override
     public Mono<PaginationResponse<NaturalPersonDTO>> filterNaturalPersons(UUID partyId, FilterRequest<NaturalPersonDTO> filterRequest) {
-        PartyScope.scope(filterRequest, NaturalPersonDTO::new, NaturalPersonDTO::setPartyId, partyId);
+        PartyScopeImpl.scope(filterRequest, NaturalPersonDTO::new, NaturalPersonDTO::setPartyId, partyId);
         return FilterUtils
                 .createFilter(
                         NaturalPerson.class,

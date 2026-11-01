@@ -29,14 +29,14 @@ import java.util.UUID;
 /**
  * A party is either a person or an organization, never both and never the other kind.
  */
-@Component
-public class PartyProfiles {
+@Component("partyProfiles")
+public class PartyProfilesImpl {
 
     private final PartyRepository parties;
     private final NaturalPersonRepository persons;
     private final LegalEntityRepository organizations;
 
-    public PartyProfiles(PartyRepository parties,
+    public PartyProfilesImpl(PartyRepository parties,
                          NaturalPersonRepository persons,
                          LegalEntityRepository organizations) {
         this.parties = parties;
