@@ -45,6 +45,7 @@ public class PartyDTO {
     @NotNull(message = "Party kind is required")
     private PartyKind partyKind;
 
+    @org.fireflyframework.utils.annotations.FilterableId
     @NotNull(message = "Tenant ID is required")
     private UUID tenantId;
 

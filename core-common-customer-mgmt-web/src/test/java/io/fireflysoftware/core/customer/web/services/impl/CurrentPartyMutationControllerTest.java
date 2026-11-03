@@ -43,7 +43,7 @@ class CurrentPartyMutationControllerTest {
         var service = new CurrentPartyAccessServiceImpl(owner, contexts, policies,
                 Clock.fixed(NOW, ZoneOffset.UTC), Set.of("https://issuer.example"),
                 Set.of("customer"), Set.of("registered-client"));
-        controller = new PartyController(owner, service);
+        controller = new PartyController(service);
         when(contexts.currentPrincipal()).thenReturn(Mono.empty());
         when(policies.authorize(any(), anyString(), anyString(), anyMap())).thenReturn(Mono.just(Decision.permit()));
         when(owner.getPartyById(PARTY)).thenReturn(Mono.just(row(TENANT)));

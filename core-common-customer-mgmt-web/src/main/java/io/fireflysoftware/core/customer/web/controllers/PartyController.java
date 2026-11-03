@@ -19,7 +19,6 @@ package io.fireflysoftware.core.customer.web.controllers;
 
 import org.fireflyframework.core.filters.FilterRequest;
 import org.fireflyframework.core.queries.PaginationResponse;
-import io.fireflysoftware.core.customer.core.services.PartyService;
 import io.fireflysoftware.core.customer.web.services.CurrentPartyAccessService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.fireflysoftware.core.customer.interfaces.dtos.PartyDTO;
@@ -51,7 +50,6 @@ import java.util.UUID;
 )
 public class PartyController {
 
-    private final PartyService partyService;
     private final CurrentPartyAccessService currentPartyAccessService;
 
     @PostMapping("/filter")
@@ -73,8 +71,9 @@ public class PartyController {
     public Mono<ResponseEntity<PaginationResponse<PartyDTO>>> filterParties(
             @Parameter(description = "Filter criteria for parties", required = true)
             @Valid @RequestBody FilterRequest<PartyDTO> filterRequest) {
-        return partyService.filterParties(filterRequest)
-                .map(ResponseEntity::ok);
+        return currentPartyAccessService.filterParties(filterRequest)
+                .map(page -> ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.noStore())
+                        .varyBy("Authorization").body(page));
     }
 
     @PostMapping
