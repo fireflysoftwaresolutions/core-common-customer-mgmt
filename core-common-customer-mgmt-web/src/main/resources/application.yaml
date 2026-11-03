@@ -21,7 +21,7 @@ spring:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslMode=${DB_SSL_MODE}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSL_MODE}
     user: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
@@ -71,3 +71,13 @@ logging:
     io.fireflysoftware: DEBUG
     org.springframework.r2dbc: DEBUG
     org.flywaydb: DEBUG
+
+firefly:
+  security:
+    resource-server:
+      strict-policy: true
+      tenant-required: true
+      tenant-claim-paths: [tenant_id]
+      scope-claim-paths: [scope]
+      role-claim-paths: [roles]
+      permit-matchers: []

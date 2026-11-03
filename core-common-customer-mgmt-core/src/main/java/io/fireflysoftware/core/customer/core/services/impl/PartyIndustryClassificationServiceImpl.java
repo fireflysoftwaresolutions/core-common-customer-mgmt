@@ -48,7 +48,7 @@ public class PartyIndustryClassificationServiceImpl implements PartyIndustryClas
 
     @Override
     public Mono<PaginationResponse<PartyIndustryClassificationDTO>> filter(UUID partyId, FilterRequest<PartyIndustryClassificationDTO> filterRequest) {
-        PartyScope.scope(filterRequest, PartyIndustryClassificationDTO::new, PartyIndustryClassificationDTO::setPartyId, partyId);
+        PartyScopeImpl.scope(filterRequest, PartyIndustryClassificationDTO::new, PartyIndustryClassificationDTO::setPartyId, partyId);
         return FilterUtils.createFilter(PartyIndustryClassification.class, mapper::toDTO).filter(filterRequest);
     }
 
@@ -72,7 +72,7 @@ public class PartyIndustryClassificationServiceImpl implements PartyIndustryClas
         return repository.findById(classificationId)
                 .switchIfEmpty(Mono.error(new RuntimeException(
                         "Industry classification not found with ID: " + classificationId)))
-                .flatMap(existing -> PartyScope.requireOwner(
+                .flatMap(existing -> PartyScopeImpl.requireOwner(
                                 partyId, existing.getPartyId(), existing, "Industry classification", classificationId)
                         .flatMap(owned -> {
                             dto.setPartyId(partyId);
@@ -97,7 +97,7 @@ public class PartyIndustryClassificationServiceImpl implements PartyIndustryClas
         return repository.findById(classificationId)
                 .switchIfEmpty(Mono.error(new RuntimeException(
                         "Industry classification not found with ID: " + classificationId)))
-                .flatMap(existing -> PartyScope.requireOwner(
+                .flatMap(existing -> PartyScopeImpl.requireOwner(
                                 partyId, existing.getPartyId(), existing, "Industry classification", classificationId)
                         .flatMap(owned -> repository.deleteById(classificationId)));
     }
@@ -107,7 +107,7 @@ public class PartyIndustryClassificationServiceImpl implements PartyIndustryClas
         return repository.findById(classificationId)
                 .switchIfEmpty(Mono.error(new RuntimeException(
                         "Industry classification not found with ID: " + classificationId)))
-                .flatMap(existing -> PartyScope.requireOwner(
+                .flatMap(existing -> PartyScopeImpl.requireOwner(
                         partyId, existing.getPartyId(), existing, "Industry classification", classificationId))
                 .map(mapper::toDTO);
     }

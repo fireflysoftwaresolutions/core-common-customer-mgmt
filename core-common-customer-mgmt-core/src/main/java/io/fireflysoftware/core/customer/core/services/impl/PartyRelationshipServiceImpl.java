@@ -114,7 +114,7 @@ public class PartyRelationshipServiceImpl implements PartyRelationshipService {
     public Mono<List<PartyRelationshipDTO>> directSubsidiaries(UUID legalEntityPartyId) {
         return requireLegalEntity(legalEntityPartyId)
                 .then(hierarchyEdges(null))
-                .map(edges -> PartyHierarchy.directChildren(legalEntityPartyId, edges).stream()
+                .map(edges -> PartyHierarchyImpl.directChildren(legalEntityPartyId, edges).stream()
                         .map(mapper::toDTO)
                         .toList());
     }
@@ -126,7 +126,7 @@ public class PartyRelationshipServiceImpl implements PartyRelationshipService {
         }
         return requireLegalEntity(legalEntityPartyId)
                 .then(hierarchyEdges(null))
-                .map(edges -> PartyHierarchy.ancestors(legalEntityPartyId, edges, depth));
+                .map(edges -> PartyHierarchyImpl.ancestors(legalEntityPartyId, edges, depth));
     }
 
     private Mono<PartyRelationshipDTO> prepare(UUID existingId, PartyRelationshipDTO dto) {
@@ -174,12 +174,12 @@ public class PartyRelationshipServiceImpl implements PartyRelationshipService {
                                 "Source and target parties must belong to the relationship tenant"));
                     }
                     dto.setTenantId(tenant);
-                    if (!PartyHierarchy.isHierarchyEdge(dto.getRelationshipKind(), source.getPartyKind())) {
+                    if (!PartyHierarchyImpl.isHierarchyEdge(dto.getRelationshipKind(), source.getPartyKind())) {
                         return Mono.just(dto);
                     }
                     return hierarchyEdges(existingId)
                             .flatMap(edges -> {
-                                if (PartyHierarchy.wouldCycle(dto.getSourcePartyId(), dto.getTargetPartyId(), edges)) {
+                                if (PartyHierarchyImpl.wouldCycle(dto.getSourcePartyId(), dto.getTargetPartyId(), edges)) {
                                     return Mono.error(new RuntimeException(
                                             "The relationship would create a cycle"));
                                 }
@@ -213,7 +213,7 @@ public class PartyRelationshipServiceImpl implements PartyRelationshipService {
                             : parties.findAllById(ownershipSources)
                             .collectMap(Party::getPartyId, Party::getPartyKind);
                     return kinds.map(kindByParty -> rows.stream()
-                            .filter(row -> PartyHierarchy.isHierarchyEdge(
+                            .filter(row -> PartyHierarchyImpl.isHierarchyEdge(
                                     row.getRelationshipKind(), kindByParty.get(row.getSourcePartyId())))
                             .toList());
                 });

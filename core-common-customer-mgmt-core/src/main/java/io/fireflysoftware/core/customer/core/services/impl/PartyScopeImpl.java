@@ -27,9 +27,9 @@ import java.util.function.Supplier;
 /**
  * Binds a nested customer resource to the party id in the URL.
  */
-final class PartyScope {
+final class PartyScopeImpl {
 
-    private PartyScope() {
+    private PartyScopeImpl() {
     }
 
     static <T> void scope(FilterRequest<T> filterRequest, Supplier<T> empty, BiConsumer<T, UUID> bind, UUID partyId) {

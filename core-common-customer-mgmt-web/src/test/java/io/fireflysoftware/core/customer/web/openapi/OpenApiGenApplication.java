@@ -17,6 +17,11 @@
 package io.fireflysoftware.core.customer.web.openapi;
 
 import org.fireflyframework.web.openapi.EnableOpenApiGen;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.ComponentScan;
 
@@ -31,6 +36,9 @@ import org.springframework.context.annotation.ComponentScan;
  * Maven profile with {@code useTestClasspath=true}.
  */
 @EnableOpenApiGen
+@SecurityScheme(name = "customerBearer", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
+@OpenAPIDefinition(info = @Info(title = "${spring.application.name}", version = "${spring.application.version}",
+        description = "${spring.application.description}"), security = @SecurityRequirement(name = "customerBearer"))
 @ComponentScan(basePackages = "io.fireflysoftware.core.customer.web.controllers")
 public class OpenApiGenApplication {
     public static void main(String[] args) {

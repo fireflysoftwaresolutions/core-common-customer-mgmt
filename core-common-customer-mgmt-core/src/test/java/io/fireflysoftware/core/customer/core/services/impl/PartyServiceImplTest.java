@@ -132,6 +132,7 @@ class PartyServiceImplTest {
         // Arrange
         PartyDTO updateDTO = new PartyDTO();
         updateDTO.setPartyId(null); // ID should be set by service
+        updateDTO.setTenantId(party.getTenantId());
         
         Party updatedParty = new Party();
         updatedParty.setPartyId(partyId);

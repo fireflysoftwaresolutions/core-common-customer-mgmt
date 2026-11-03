@@ -43,7 +43,7 @@ public class PartyEconomicActivityServiceImpl implements PartyEconomicActivitySe
 
     @Override
     public Mono<PaginationResponse<PartyEconomicActivityDTO>> filterPartyEconomicActivities(UUID partyId, FilterRequest<PartyEconomicActivityDTO> filterRequest) {
-        PartyScope.scope(filterRequest, PartyEconomicActivityDTO::new, PartyEconomicActivityDTO::setPartyId, partyId);
+        PartyScopeImpl.scope(filterRequest, PartyEconomicActivityDTO::new, PartyEconomicActivityDTO::setPartyId, partyId);
         return FilterUtils
                 .createFilter(
                         PartyEconomicActivity.class,
@@ -65,7 +65,7 @@ public class PartyEconomicActivityServiceImpl implements PartyEconomicActivitySe
     public Mono<PartyEconomicActivityDTO> updatePartyEconomicActivity(UUID partyId, UUID partyEconomicActivityId, PartyEconomicActivityDTO partyEconomicActivityDTO) {
         return repository.findById(partyEconomicActivityId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Party economic activity not found with ID: " + partyEconomicActivityId)))
-                .flatMap(existingPartyEconomicActivity -> PartyScope.requireOwner(
+                .flatMap(existingPartyEconomicActivity -> PartyScopeImpl.requireOwner(
                                 partyId, existingPartyEconomicActivity.getPartyId(), existingPartyEconomicActivity,
                                 "Party economic activity", partyEconomicActivityId)
                         .flatMap(owned -> {
@@ -81,7 +81,7 @@ public class PartyEconomicActivityServiceImpl implements PartyEconomicActivitySe
     public Mono<Void> deletePartyEconomicActivity(UUID partyId, UUID partyEconomicActivityId) {
         return repository.findById(partyEconomicActivityId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Party economic activity not found with ID: " + partyEconomicActivityId)))
-                .flatMap(partyEconomicActivity -> PartyScope.requireOwner(
+                .flatMap(partyEconomicActivity -> PartyScopeImpl.requireOwner(
                                 partyId, partyEconomicActivity.getPartyId(), partyEconomicActivity,
                                 "Party economic activity", partyEconomicActivityId)
                         .flatMap(owned -> repository.deleteById(partyEconomicActivityId)));
@@ -91,7 +91,7 @@ public class PartyEconomicActivityServiceImpl implements PartyEconomicActivitySe
     public Mono<PartyEconomicActivityDTO> getPartyEconomicActivityById(UUID partyId, UUID partyEconomicActivityId) {
         return repository.findById(partyEconomicActivityId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Party economic activity not found with ID: " + partyEconomicActivityId)))
-                .flatMap(partyEconomicActivity -> PartyScope.requireOwner(
+                .flatMap(partyEconomicActivity -> PartyScopeImpl.requireOwner(
                         partyId, partyEconomicActivity.getPartyId(), partyEconomicActivity,
                         "Party economic activity", partyEconomicActivityId))
                 .map(mapper::toDTO);

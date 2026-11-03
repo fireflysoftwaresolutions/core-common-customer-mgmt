@@ -64,8 +64,16 @@ public class PartyServiceImpl implements PartyService {
         return repository.findById(partyId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Party not found with ID: " + partyId)))
                 .flatMap(existingParty -> {
+                    if (partyDTO == null || partyDTO.getTenantId() == null
+                            || !partyDTO.getTenantId().equals(existingParty.getTenantId())
+                            || (partyDTO.getPartyId() != null && !partyId.equals(partyDTO.getPartyId()))) {
+                        return Mono.error(new IllegalArgumentException("Party identity and tenant cannot change"));
+                    }
                     Party updatedParty = mapper.toEntity(partyDTO);
                     updatedParty.setPartyId(partyId);
+                    updatedParty.setTenantId(existingParty.getTenantId());
+                    updatedParty.setCreatedAt(existingParty.getCreatedAt());
+                    updatedParty.setUpdatedAt(existingParty.getUpdatedAt());
                     return repository.save(updatedParty);
                 })
                 .map(mapper::toDTO);

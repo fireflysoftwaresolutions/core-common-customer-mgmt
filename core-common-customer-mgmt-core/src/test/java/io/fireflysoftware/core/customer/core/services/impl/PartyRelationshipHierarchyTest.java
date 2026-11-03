@@ -237,7 +237,7 @@ class PartyRelationshipHierarchyTest {
                 .assertNext(ancestors -> {
                     assertEquals(List.of(subsidiary, holding), ancestors.stream().map(PartyAncestorDTO::getPartyId).toList());
                     assertEquals(List.of(1, 2), ancestors.stream().map(PartyAncestorDTO::getDistance).toList());
-                    assertTrue(ancestors.stream().allMatch(ancestor -> ancestor.getDistance() <= PartyHierarchy.MAX_DEPTH));
+                    assertTrue(ancestors.stream().allMatch(ancestor -> ancestor.getDistance() <= PartyHierarchyImpl.MAX_DEPTH));
                 })
                 .verifyComplete();
     }

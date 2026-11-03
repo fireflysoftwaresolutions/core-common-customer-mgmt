@@ -68,7 +68,7 @@ public class IdentityDocumentServiceImpl implements IdentityDocumentService {
     public Mono<IdentityDocumentDTO> updateIdentityDocument(UUID partyId, UUID identityDocumentId, IdentityDocumentDTO identityDocumentDTO) {
         return repository.findById(identityDocumentId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Identity document not found with ID: " + identityDocumentId)))
-                .flatMap(existingIdentityDocument -> PartyScope.requireOwner(
+                .flatMap(existingIdentityDocument -> PartyScopeImpl.requireOwner(
                                 partyId, existingIdentityDocument.getPartyId(), existingIdentityDocument,
                                 "Identity document", identityDocumentId)
                         .flatMap(owned -> {
@@ -84,7 +84,7 @@ public class IdentityDocumentServiceImpl implements IdentityDocumentService {
     public Mono<Void> deleteIdentityDocument(UUID partyId, UUID identityDocumentId) {
         return repository.findById(identityDocumentId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Identity document not found with ID: " + identityDocumentId)))
-                .flatMap(identityDocument -> PartyScope.requireOwner(partyId, identityDocument.getPartyId(), identityDocument, "Identity document", identityDocumentId)
+                .flatMap(identityDocument -> PartyScopeImpl.requireOwner(partyId, identityDocument.getPartyId(), identityDocument, "Identity document", identityDocumentId)
                         .flatMap(owned -> repository.deleteById(identityDocumentId)));
     }
 
@@ -92,7 +92,7 @@ public class IdentityDocumentServiceImpl implements IdentityDocumentService {
     public Mono<IdentityDocumentDTO> getIdentityDocumentById(UUID partyId, UUID identityDocumentId) {
         return repository.findById(identityDocumentId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Identity document not found with ID: " + identityDocumentId)))
-                .flatMap(identityDocument -> PartyScope.requireOwner(partyId, identityDocument.getPartyId(), identityDocument, "Identity document", identityDocumentId))
+                .flatMap(identityDocument -> PartyScopeImpl.requireOwner(partyId, identityDocument.getPartyId(), identityDocument, "Identity document", identityDocumentId))
                 .map(mapper::toDTO);
     }
 }

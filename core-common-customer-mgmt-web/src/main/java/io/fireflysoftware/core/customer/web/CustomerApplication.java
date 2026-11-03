@@ -19,6 +19,9 @@ package io.fireflysoftware.core.customer.web;
 
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.servers.Server;
@@ -41,7 +44,9 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 )
 @EnableR2dbcAuditing
 @ConfigurationPropertiesScan
+@SecurityScheme(name = "customerBearer", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
 @OpenAPIDefinition(
+        security = @SecurityRequirement(name = "customerBearer"),
         info = @Info(
                 title = "${spring.application.name}",
                 version = "${spring.application.version}",

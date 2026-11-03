@@ -85,7 +85,7 @@ public class EmailContactServiceImpl implements EmailContactService {
     public Mono<Void> deleteEmailContact(UUID partyId, UUID emailContactId) {
         return repository.findById(emailContactId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Email contact not found with ID: " + emailContactId)))
-                .flatMap(emailContact -> PartyScope.requireOwner(partyId, emailContact.getPartyId(), emailContact, "Email contact", emailContactId)
+                .flatMap(emailContact -> PartyScopeImpl.requireOwner(partyId, emailContact.getPartyId(), emailContact, "Email contact", emailContactId)
                         .flatMap(owned -> repository.deleteById(emailContactId)));
     }
 
@@ -93,7 +93,7 @@ public class EmailContactServiceImpl implements EmailContactService {
     public Mono<EmailContactDTO> getEmailContactById(UUID partyId, UUID emailContactId) {
         return repository.findById(emailContactId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Email contact not found with ID: " + emailContactId)))
-                .flatMap(emailContact -> PartyScope.requireOwner(partyId, emailContact.getPartyId(), emailContact, "Email contact", emailContactId))
+                .flatMap(emailContact -> PartyScopeImpl.requireOwner(partyId, emailContact.getPartyId(), emailContact, "Email contact", emailContactId))
                 .map(mapper::toDTO);
     }
 }

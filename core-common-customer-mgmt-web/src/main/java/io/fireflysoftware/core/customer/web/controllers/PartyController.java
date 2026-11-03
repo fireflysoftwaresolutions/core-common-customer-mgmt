@@ -20,6 +20,8 @@ package io.fireflysoftware.core.customer.web.controllers;
 import org.fireflyframework.core.filters.FilterRequest;
 import org.fireflyframework.core.queries.PaginationResponse;
 import io.fireflysoftware.core.customer.core.services.PartyService;
+import io.fireflysoftware.core.customer.web.services.CurrentPartyAccessService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.fireflysoftware.core.customer.interfaces.dtos.PartyDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -39,6 +41,7 @@ import jakarta.validation.Valid;
 import java.util.UUID;
 
 @RestController
+@SecurityRequirement(name = "customerBearer")
 @RequestMapping("/api/v1/parties")
 @RequiredArgsConstructor
 @Validated
@@ -49,6 +52,7 @@ import java.util.UUID;
 public class PartyController {
 
     private final PartyService partyService;
+    private final CurrentPartyAccessService currentPartyAccessService;
 
     @PostMapping("/filter")
     @Operation(
@@ -93,8 +97,9 @@ public class PartyController {
     public Mono<ResponseEntity<PartyDTO>> createParty(
             @Parameter(description = "Party data to create", required = true)
             @Valid @RequestBody PartyDTO partyDTO) {
-        return partyService.createParty(partyDTO)
-                .map(party -> ResponseEntity.status(HttpStatus.CREATED).body(party));
+        return currentPartyAccessService.createParty(partyDTO)
+                .map(party -> ResponseEntity.status(HttpStatus.CREATED).cacheControl(org.springframework.http.CacheControl.noStore())
+                        .varyBy("Authorization").body(party));
     }
 
     @GetMapping("/{partyId}")
@@ -117,8 +122,9 @@ public class PartyController {
     public Mono<ResponseEntity<PartyDTO>> getPartyById(
             @Parameter(description = "Unique identifier of the party", required = true)
             @PathVariable UUID partyId) {
-        return partyService.getPartyById(partyId)
-                .map(ResponseEntity::ok);
+        return currentPartyAccessService.getPartyById(partyId)
+                .map(party -> ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.noStore())
+                        .varyBy("Authorization").body(party));
     }
 
     @PutMapping("/{partyId}")
@@ -148,8 +154,9 @@ public class PartyController {
             @PathVariable UUID partyId,
             @Parameter(description = "Updated party data", required = true)
             @Valid @RequestBody PartyDTO partyDTO) {
-        return partyService.updateParty(partyId, partyDTO)
-                .map(ResponseEntity::ok);
+        return currentPartyAccessService.updateParty(partyId, partyDTO)
+                .map(party -> ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.noStore())
+                        .varyBy("Authorization").body(party));
     }
 
     @DeleteMapping("/{partyId}")
@@ -171,7 +178,8 @@ public class PartyController {
     public Mono<ResponseEntity<Void>> deleteParty(
             @Parameter(description = "Unique identifier of the party", required = true)
             @PathVariable UUID partyId) {
-        return partyService.deleteParty(partyId)
-                .then(Mono.just(ResponseEntity.noContent().build()));
+        return currentPartyAccessService.deleteParty(partyId)
+                .then(Mono.just(ResponseEntity.noContent().cacheControl(org.springframework.http.CacheControl.noStore())
+                        .varyBy("Authorization").build()));
     }
 }

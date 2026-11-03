@@ -52,7 +52,7 @@ class LegalEntityServiceImplTest {
     private LegalEntityMapper legalEntityMapper;
 
     @Mock
-    private PartyProfiles partyProfiles;
+    private PartyProfilesImpl partyProfiles;
 
     @InjectMocks
     private LegalEntityServiceImpl legalEntityService;

@@ -43,7 +43,7 @@ public class ConsentServiceImpl implements ConsentService {
 
     @Override
     public Mono<PaginationResponse<ConsentDTO>> filterConsents(UUID partyId, FilterRequest<ConsentDTO> filterRequest) {
-        PartyScope.scope(filterRequest, ConsentDTO::new, ConsentDTO::setPartyId, partyId);
+        PartyScopeImpl.scope(filterRequest, ConsentDTO::new, ConsentDTO::setPartyId, partyId);
         return FilterUtils
                 .createFilter(
                         Consent.class,
@@ -65,7 +65,7 @@ public class ConsentServiceImpl implements ConsentService {
     public Mono<ConsentDTO> updateConsent(UUID partyId, UUID consentId, ConsentDTO consentDTO) {
         return repository.findById(consentId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Consent not found with ID: " + consentId)))
-                .flatMap(existingConsent -> PartyScope.requireOwner(partyId, existingConsent.getPartyId(), existingConsent, "Consent", consentId)
+                .flatMap(existingConsent -> PartyScopeImpl.requireOwner(partyId, existingConsent.getPartyId(), existingConsent, "Consent", consentId)
                         .flatMap(owned -> {
                             Consent updatedConsent = mapper.toEntity(consentDTO);
                             updatedConsent.setConsentId(consentId);
@@ -79,7 +79,7 @@ public class ConsentServiceImpl implements ConsentService {
     public Mono<Void> deleteConsent(UUID partyId, UUID consentId) {
         return repository.findById(consentId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Consent not found with ID: " + consentId)))
-                .flatMap(consent -> PartyScope.requireOwner(partyId, consent.getPartyId(), consent, "Consent", consentId)
+                .flatMap(consent -> PartyScopeImpl.requireOwner(partyId, consent.getPartyId(), consent, "Consent", consentId)
                         .flatMap(owned -> repository.deleteById(consentId)));
     }
 
@@ -87,7 +87,7 @@ public class ConsentServiceImpl implements ConsentService {
     public Mono<ConsentDTO> getConsentById(UUID partyId, UUID consentId) {
         return repository.findById(consentId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Consent not found with ID: " + consentId)))
-                .flatMap(consent -> PartyScope.requireOwner(partyId, consent.getPartyId(), consent, "Consent", consentId))
+                .flatMap(consent -> PartyScopeImpl.requireOwner(partyId, consent.getPartyId(), consent, "Consent", consentId))
                 .map(mapper::toDTO);
     }
 }

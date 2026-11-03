@@ -49,7 +49,7 @@ class PartyProfilesTest {
     private LegalEntityRepository organizations;
 
     @InjectMocks
-    private PartyProfiles profiles;
+    private PartyProfilesImpl profiles;
 
     private final UUID partyId = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
 

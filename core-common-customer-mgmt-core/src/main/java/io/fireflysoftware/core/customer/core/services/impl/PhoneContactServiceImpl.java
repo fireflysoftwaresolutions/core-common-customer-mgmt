@@ -84,7 +84,7 @@ public class PhoneContactServiceImpl implements PhoneContactService {
     public Mono<Void> deletePhoneContact(UUID partyId, UUID phoneContactId) {
         return repository.findById(phoneContactId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Phone contact not found with ID: " + phoneContactId)))
-                .flatMap(phoneContact -> PartyScope.requireOwner(partyId, phoneContact.getPartyId(), phoneContact, "Phone contact", phoneContactId)
+                .flatMap(phoneContact -> PartyScopeImpl.requireOwner(partyId, phoneContact.getPartyId(), phoneContact, "Phone contact", phoneContactId)
                         .flatMap(owned -> repository.deleteById(phoneContactId)));
     }
 
@@ -92,7 +92,7 @@ public class PhoneContactServiceImpl implements PhoneContactService {
     public Mono<PhoneContactDTO> getPhoneContactById(UUID partyId, UUID phoneContactId) {
         return repository.findById(phoneContactId)
                 .switchIfEmpty(Mono.error(new RuntimeException("Phone contact not found with ID: " + phoneContactId)))
-                .flatMap(phoneContact -> PartyScope.requireOwner(partyId, phoneContact.getPartyId(), phoneContact, "Phone contact", phoneContactId))
+                .flatMap(phoneContact -> PartyScopeImpl.requireOwner(partyId, phoneContact.getPartyId(), phoneContact, "Phone contact", phoneContactId))
                 .map(mapper::toDTO);
     }
 }
