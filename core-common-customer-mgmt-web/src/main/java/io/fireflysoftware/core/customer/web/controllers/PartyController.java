@@ -154,8 +154,9 @@ public class PartyController {
             @PathVariable UUID partyId,
             @Parameter(description = "Updated party data", required = true)
             @Valid @RequestBody PartyDTO partyDTO) {
-        return partyService.updateParty(partyId, partyDTO)
-                .map(ResponseEntity::ok);
+        return currentPartyAccessService.updateParty(partyId, partyDTO)
+                .map(party -> ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.noStore())
+                        .varyBy("Authorization").body(party));
     }
 
     @DeleteMapping("/{partyId}")
@@ -177,7 +178,8 @@ public class PartyController {
     public Mono<ResponseEntity<Void>> deleteParty(
             @Parameter(description = "Unique identifier of the party", required = true)
             @PathVariable UUID partyId) {
-        return partyService.deleteParty(partyId)
-                .then(Mono.just(ResponseEntity.noContent().build()));
+        return currentPartyAccessService.deleteParty(partyId)
+                .then(Mono.just(ResponseEntity.noContent().cacheControl(org.springframework.http.CacheControl.noStore())
+                        .varyBy("Authorization").build()));
     }
 }

@@ -63,6 +63,49 @@ public final class CurrentPartyAccessServiceImpl implements CurrentPartyAccessSe
         }).timeout(Duration.ofSeconds(5));
     }
 
+    @Override public Mono<PartyDTO> updateParty(UUID partyId,PartyDTO party){
+        return Mono.defer(()->{
+            UUID id=identifier(partyId);
+            if(party==null||(party.getPartyId()!=null&&!id.equals(party.getPartyId())))throw denied();
+            UUID requestedTenant=identifier(party.getTenantId());
+            return mutationAuthority(id,"update").flatMap(actor->{
+                UUID tenant=tenant(actor);
+                if(!tenant.equals(requestedTenant))return Mono.error(denied());
+                return Mono.defer(()->{
+                    current(actor,tenant,id,"update");
+                    return owner.updateParty(id,party);
+                }).map(updated->{
+                    current(actor,tenant,id,"update");
+                    if(!id.equals(updated.getPartyId())||!tenant.equals(updated.getTenantId()))throw denied();
+                    return updated;
+                });
+            });
+        }).timeout(Duration.ofSeconds(5));
+    }
+
+    @Override public Mono<Void> deleteParty(UUID partyId){
+        return Mono.defer(()->{
+            UUID id=identifier(partyId);
+            return mutationAuthority(id,"delete").flatMap(actor->Mono.defer(()->{
+                current(actor,tenant(actor),id,"delete");
+                return owner.deleteParty(id);
+            }));
+        }).timeout(Duration.ofSeconds(5));
+    }
+
+    private Mono<SecurityPrincipal> mutationAuthority(UUID id,String operation){
+        return contexts.currentPrincipal().switchIfEmpty(Mono.error(denied())).flatMap(actor->{
+            UUID tenant=tenant(actor);current(actor,tenant,id,operation);
+            return authorize(actor,tenant,id,operation).then(Mono.defer(()->{
+                current(actor,tenant,id,operation);
+                return owner.getPartyById(id);
+            })).switchIfEmpty(Mono.error(denied())).flatMap(party->{
+                if(!id.equals(party.getPartyId())||!tenant.equals(party.getTenantId()))return Mono.error(denied());
+                return authorize(actor,tenant,id,operation).thenReturn(actor);
+            });
+        });
+    }
+
     private Mono<Void> authorize(SecurityPrincipal actor,UUID tenant,UUID party,String operation){
         return Mono.defer(()->{
             current(actor,tenant,party,operation);

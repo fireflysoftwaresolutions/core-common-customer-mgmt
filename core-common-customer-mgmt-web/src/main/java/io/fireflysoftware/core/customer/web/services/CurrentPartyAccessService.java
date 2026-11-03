@@ -7,4 +7,6 @@ import java.util.UUID;
 public interface CurrentPartyAccessService {
     Mono<PartyDTO> createParty(PartyDTO party);
     Mono<PartyDTO> getPartyById(UUID partyId);
+    Mono<PartyDTO> updateParty(UUID partyId, PartyDTO party);
+    Mono<Void> deleteParty(UUID partyId);
 }
