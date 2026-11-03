@@ -71,3 +71,13 @@ logging:
     io.fireflysoftware: DEBUG
     org.springframework.r2dbc: DEBUG
     org.flywaydb: DEBUG
+
+firefly:
+  security:
+    resource-server:
+      strict-policy: true
+      tenant-required: true
+      tenant-claim-paths: [tenant_id]
+      scope-claim-paths: [scope]
+      role-claim-paths: [roles]
+      permit-matchers: []

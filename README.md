@@ -603,3 +603,14 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENS
 ---
 
 **Firefly OpenCore Banking Platform** - Empowering the next generation of financial services.
+
+
+## Current party authorization
+
+The normal Customer Main uses the released framework resource server and current OPA decision adapter. Configure `firefly.security.resource-server.issuer`, `jwk-set-uri` and `audiences` with the real HTTPS issuer/JWKS and intended Customer audience; configure `firefly.customer.authority.policy-url`, `policy-path` and `allowed-client-ids` with the current policy service and registered clients. Strict policy, signed `tenant_id` projection, required tenant, `scope` projection and an empty public permit list are required. The service refuses to start if these requirements are relaxed. Credentials remain deployment environment inputs.
+
+The original `POST /api/v1/parties` requires `customer:parties:create`, a current STAFF identity and a body tenant equal to the signed resource tenant. The owner generates the party ID. The original `GET /api/v1/parties/{partyId}` requires `customer:parties:read`, exact persisted tenant ownership and a current decision both before reading and before returning. STAFF readers require their signed staff identity; HUMAN readers are restricted to their own signed `party_id`. Both operations also require a registered client and the configured issuer/audience. Responses use `Cache-Control: no-store` and `Vary: Authorization`.
+
+Current policy receives `customer.parties.create` on `tenant/{tenantId}/parties`, or `customer.parties.read` on `tenant/{tenantId}/parties/{partyId}`, with exact tenant, caller identity, client and, for reads, party selectors. Empty, failed, denied or obligation-bearing decisions cannot admit the operation. These checks call the existing Core Party service and its Spring Data repository; no Web, Domain or Experience store is introduced.
+
+The full original controller producer retains all 85 operations and generates the named `customerBearer` SDK contract for every route. Maven mirrors its exact producer bytes to the packaged `api-spec/openapi.yml` compatibility resource during `process-resources`. Use its generated `HttpBearerAuth` registration with the current caller token. Existing other Customer endpoints remain subject to the strict receiver and current URL policy; this bounded party prerequisite does not establish complete onboarding or admit every legacy Customer operation. Controlled local fixtures and source tests do not establish external identity-provider acceptance.
