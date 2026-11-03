@@ -17,6 +17,7 @@
 
 package io.fireflysoftware.core.customer.core.services.impl;
 
+import io.fireflysoftware.core.customer.core.services.PartyProfiles;
 import org.fireflyframework.core.filters.FilterRequest;
 import org.fireflyframework.core.filters.FilterUtils;
 import org.fireflyframework.core.queries.PaginationResponse;
@@ -44,7 +45,7 @@ public class LegalEntityServiceImpl implements LegalEntityService {
     private LegalEntityMapper mapper;
 
     @Autowired
-    private PartyProfilesImpl partyProfiles;
+    private PartyProfiles partyProfiles;
 
     @Override
     public Mono<PaginationResponse<LegalEntityDTO>> filterLegalEntities(UUID partyId, FilterRequest<LegalEntityDTO> filterRequest) {

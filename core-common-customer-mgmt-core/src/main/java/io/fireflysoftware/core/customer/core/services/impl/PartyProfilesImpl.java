@@ -17,6 +17,7 @@
 
 package io.fireflysoftware.core.customer.core.services.impl;
 
+import io.fireflysoftware.core.customer.core.services.PartyProfiles;
 import io.fireflysoftware.core.customer.interfaces.enums.PartyKind;
 import io.fireflysoftware.core.customer.models.repositories.LegalEntityRepository;
 import io.fireflysoftware.core.customer.models.repositories.NaturalPersonRepository;
@@ -30,7 +31,7 @@ import java.util.UUID;
  * A party is either a person or an organization, never both and never the other kind.
  */
 @Component("partyProfiles")
-public class PartyProfilesImpl {
+public class PartyProfilesImpl implements PartyProfiles {
 
     private final PartyRepository parties;
     private final NaturalPersonRepository persons;
@@ -44,10 +45,12 @@ public class PartyProfilesImpl {
         this.organizations = organizations;
     }
 
+    @Override
     public Mono<Void> requirePersonSlot(UUID partyId) {
         return require(partyId, PartyKind.INDIVIDUAL, "a person profile", "an organization profile");
     }
 
+    @Override
     public Mono<Void> requireOrganizationSlot(UUID partyId) {
         return require(partyId, PartyKind.ORGANIZATION, "an organization profile", "a person profile");
     }
