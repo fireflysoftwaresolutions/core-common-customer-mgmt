@@ -31,6 +31,29 @@ public final class CurrentPartyAccessServiceImpl implements CurrentPartyAccessSe
             ||this.clients.stream().anyMatch(String::isBlank))throw new IllegalArgumentException("Explicit Customer issuer, audience and client registrations required");
     }
 
+    @Override public Mono<org.fireflyframework.core.queries.PaginationResponse<PartyDTO>> filterParties(
+            org.fireflyframework.core.filters.FilterRequest<PartyDTO> request){
+        return Mono.defer(()->{
+            if(request==null)throw denied();
+            return contexts.currentPrincipal().switchIfEmpty(Mono.error(denied())).flatMap(actor->{
+                UUID tenant=tenant(actor);current(actor,tenant,null,"filter");
+                PartyDTO filters=request.getFilters();
+                if(filters!=null&&filters.getTenantId()!=null&&!tenant.equals(filters.getTenantId()))throw denied();
+                var scopedFilters=filters==null?new PartyDTO():filters;
+                scopedFilters.setTenantId(tenant);
+                var scoped=new org.fireflyframework.core.filters.FilterRequest<>(scopedFilters,
+                        request.getRangeFilters(),request.getPagination(),request.getOptions());
+                return authorize(actor,tenant,null,"filter").then(Mono.defer(()->{
+                    current(actor,tenant,null,"filter");return owner.filterParties(scoped);
+                })).switchIfEmpty(Mono.error(denied())).flatMap(page->{
+                    if(page.getContent()==null||page.getContent().stream().anyMatch(party->party==null
+                            ||party.getPartyId()==null||!tenant.equals(party.getTenantId())))return Mono.error(denied());
+                    return authorize(actor,tenant,null,"filter").thenReturn(page);
+                });
+            });
+        }).timeout(Duration.ofSeconds(5));
+    }
+
     @Override public Mono<PartyDTO> createParty(PartyDTO party){
         return Mono.defer(()->{
             if(party==null||party.getPartyId()!=null||party.getCreatedAt()!=null||party.getUpdatedAt()!=null)throw denied();

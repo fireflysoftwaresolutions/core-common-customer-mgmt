@@ -5,6 +5,7 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 public interface CurrentPartyAccessService {
+    Mono<org.fireflyframework.core.queries.PaginationResponse<PartyDTO>> filterParties(org.fireflyframework.core.filters.FilterRequest<PartyDTO> request);
     Mono<PartyDTO> createParty(PartyDTO party);
     Mono<PartyDTO> getPartyById(UUID partyId);
     Mono<PartyDTO> updateParty(UUID partyId, PartyDTO party);
